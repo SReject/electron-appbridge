@@ -1,5 +1,7 @@
 {
-    "private": true,
+    "name": "electron-appbridge",
+    "version": "0.0.1",
+    "license": "ISC",
     "scripts": {
         "build": "tsc && vite build --sourcemap=true && vite build --config=renderer.vite.config.js"
     },
@@ -41,5 +43,10 @@
     },
     "volta": {
         "node": "18.14.2"
+    },
+    "homepage": "https://github.com/SReject/electron-appbridge",
+    "repository": "github:SReject/electron-appbridge",
+    "bugs": {
+        "url": "https://github.com/SReject/electron-appbridge/issues"
     }
 }

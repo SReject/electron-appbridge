@@ -75,6 +75,6 @@ jobs:
           npm publish --dry-run=true
 
       - name: Tag current commit as release
-        run:
+        run: |
           git tag ${{ needs.checkversion.outputs.version }}
           git push origin ${{ needs.checkversion.outputs.version }}

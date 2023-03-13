@@ -1,0 +1,29 @@
+module.exports = {
+    parser: "@typescript-eslint/parser",
+    extends: [
+        "eslint:recommended",
+        "plugin:@typescript-eslint/recommended",
+        "prettier"
+    ],
+    plugins: ["@typescript-eslint"],
+    parserOptions: {
+        sourceType: "module",
+        ecmaVersion: 2020,
+    },
+    env: {
+        browser: true,
+        node: true
+    },
+    ignorePatterns: [
+        "dist/**/*",
+        "out/**/*",
+        "node_modules/**/*"
+    ],
+    globals: {
+        initAppBridge: true
+    },
+    rules: {
+        "@typescript-eslint/no-var-requires": "off",
+        "@typescript-eslint/semi": "warn"
+    }
+};

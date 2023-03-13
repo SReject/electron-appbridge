@@ -5,7 +5,7 @@ import type {
     AppBridgeInvokeContext,
     AppBridgeReply,
     AppBridgeInvoke
-} from '.';
+} from './bridge';
 
 let initialized = false;
 const initAppBridge = (renderEmit: AppBridgeEmit, renderInvoke: AppBridgeInvoke) : {emit: AppBridgeEmit, invoke: AppBridgeInvoke} => {

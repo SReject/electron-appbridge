@@ -5,7 +5,7 @@ export default {
         outDir: './dist/',
         lib: {
             entry: {
-                renderer: './out/renderer.js'
+                renderer: './src/renderer.ts'
             },
             formats: ['es', 'umd'],
             name: 'appBridge'

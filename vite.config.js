@@ -1,3 +1,5 @@
+import { viteStaticCopy } from 'vite-plugin-static-copy';
+
 /** @type {import('vite').UserConfig} */
 export default {
     build: {
@@ -5,9 +7,9 @@ export default {
         outDir: './dist/',
         lib: {
             entry: {
-                index: './out/index.js',
-                main: './out/main.js',
-                preload: './out/preload.js',
+                bridge: './src/bridge.ts',
+                index: './src/index.ts',
+                preload: './src/preload.ts',
             },
             formats: ['es', 'cjs'],
             fileName: (format, name) => `${name}.${format === 'es' ? 'mjs' : 'cjs'}`
@@ -20,5 +22,13 @@ export default {
                 'electron'
             ]
         }
-    }
+    },
+    plugins: [
+        viteStaticCopy({
+            targets: [
+                { src: 'package.json', dest: '' },
+                { src: 'LICENSE', dest: '' }
+            ]
+        })
+    ]
 };

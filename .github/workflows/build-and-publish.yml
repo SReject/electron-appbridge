@@ -13,7 +13,6 @@ jobs:
 
     outputs:
       version: ${{ steps.version.outputs.version }}
-      commits: ${{ steps.commits.outputs.commits }}
       dobuild: ${{ steps.dobuild.outputs.dobuild }}
 
     steps:
@@ -29,16 +28,6 @@ jobs:
       - name: Retrieve package.json version
         id: version
         run: echo "version=${{ steps.package.outputs.version }}" >> $GITHUB_OUTPUT
-
-      - name: Get commit messages
-        id: commits
-        shell: bash
-        run: |
-          EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
-          RES=$(git log --pretty=format:'- %s' --branches=origin/master $(git describe --tags `git rev-list --tags --max-count=1`)..HEAD)
-          echo "commits<<${EOF}" >> $GITHUB_OUTPUT
-          echo "${RES}" >> $GITHUB_OUTPUT
-          echo "${EOF}" >> $GITHUB_OUTPUT
 
       - name: 'Check: package version has corrosponding git tag'
         id: dobuild
@@ -71,6 +60,11 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Tag current commit as release
+        run: |
+          git tag ${{ needs.checkversion.outputs.version }}
+          git push origin ${{ needs.checkversion.outputs.version }}
+
       - name: Publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
@@ -78,7 +72,3 @@ jobs:
           cd dist
           npm publish
 
-      - name: Tag current commit as release
-        run: |
-          git tag ${{ needs.checkversion.outputs.version }}
-          git push origin ${{ needs.checkversion.outputs.version }}

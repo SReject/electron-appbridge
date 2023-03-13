@@ -1,8 +1,8 @@
 import { BrowserWindow as ElectronBrowserWindow } from 'electron';
 import { resolve } from 'node:path' ;
+import { fileURLToPath } from 'node:url';
 
 import {
-
     default as createAppBridge,
     type AppBridge,
     type AppBridgeEmit,
@@ -23,10 +23,19 @@ interface MainAppBridge extends Omit<AppBridge, 'hook'> {
     createBrowserWindow: (options: Electron.BrowserWindowConstructorOptions) => AppBridgeBrowserWindow;
 }
 
-export const preloadPath = resolve(__dirname, './preload.js');
-export const frontendPath = resolve(__dirname, './frontend.js');
+let dir : string;
+if (module != null && module.exports) {
+    dir = __dirname;
+} else {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error
+    dir = fileURLToPath(new URL('.', import.meta.url));
+}
 
-export default () : MainAppBridge => {
+export const preloadPath = resolve(dir, './preload.js');
+export const frontendPath = resolve(dir, './frontend.js');
+
+export const appBridge = () : MainAppBridge => {
     const { appBridge, emit: localEmit, invoke: localInvoke } = createAppBridge();
 
     let hookedWindow: undefined | AppBridgeBrowserWindow;

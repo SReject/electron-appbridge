@@ -16,6 +16,7 @@ export default {
         rollupOptions: {
             external: [
                 'node:path',
+                'node:url',
                 'electron'
             ]
         }

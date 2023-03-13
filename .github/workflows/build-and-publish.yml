@@ -51,6 +51,8 @@ jobs:
     needs: [checkversion]
     if: needs.checkversion.outputs.dobuild == 1
 
+    permissions: write-all
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3

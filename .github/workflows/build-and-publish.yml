@@ -1,0 +1,80 @@
+name: Build and Publish
+
+on:
+  workflow_dispatch:
+  push:
+    branches: master
+
+jobs:
+
+  checkversion:
+    name: Check if version has corrosponding tag
+    runs-on: ubuntu-latest
+
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      commits: ${{ steps.commits.outputs.commits }}
+      dobuild: ${{ steps.dobuild.outputs.dobuild }}
+
+    steps:
+      - name: Checkout crowbartools/firebot
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Read package.json
+        id: package
+        uses: gregoranders/nodejs-project-info@v0.0.19
+
+      - name: Retrieve package.json version
+        id: version
+        run: echo "version=${{ steps.package.outputs.version }}" >> $GITHUB_OUTPUT
+
+      - name: Get commit messages
+        id: commits
+        shell: bash
+        run: |
+          EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
+          RES=$(git log --pretty=format:'- %s' --branches=origin/master $(git describe --tags `git rev-list --tags --max-count=1`)..HEAD)
+          echo "commits<<${EOF}" >> $GITHUB_OUTPUT
+          echo "${RES}" >> $GITHUB_OUTPUT
+          echo "${EOF}" >> $GITHUB_OUTPUT
+
+      - name: 'Check: package version has corrosponding git tag'
+        id: dobuild
+        shell: bash
+        run: echo dobuild=$(git show-ref --tags --verify --quiet -- "refs/tags/v${{ steps.version.outputs.version }}" && echo 0 || echo 1) >> $GITHUB_OUTPUT
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    needs: [checkversion]
+    if: needs.checkversion.outputs.dobuild == 1
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Setup Nodejs
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install Project Dependencies
+        run: npm install
+
+      - name: Build
+        run: npm run build
+
+      - name: Publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
+        run: |
+          cd dist
+          npm publish --dry-run=true
+
+      - name: Tag current commit as release
+        run:
+          git tag ${{ needs.checkversion.outputs.version }}
+          git push origin ${{ needs.checkversion.outputs.version }}

@@ -76,7 +76,7 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
         run: |
           cd dist
-          npm publish --dry-run=true
+          npm publish
 
       - name: Tag current commit as release
         run: |

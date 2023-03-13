@@ -27,7 +27,8 @@ export default {
         viteStaticCopy({
             targets: [
                 { src: 'package.json', dest: '' },
-                { src: 'LICENSE', dest: '' }
+                { src: 'LICENSE', dest: '' },
+                { src: 'README.md', dest: '' }
             ]
         })
     ]

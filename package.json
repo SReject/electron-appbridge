@@ -3,6 +3,7 @@
     "version": "0.0.1",
     "license": "ISC",
     "scripts": {
+        "lint": "eslint .",
         "build": "node build.mjs",
         "declarations": "tsc --emitDeclarationOnly"
     },

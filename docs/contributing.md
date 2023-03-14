@@ -23,12 +23,13 @@ Pull requests to the `master` branch will not be merged. The master branch is de
 
 Work from the `Z.Y.x` branch associated with the version you are targeting and pull request to that branch
 
-### Use a Consistent Coding Style
+### Consistent Coding Style
 - New Lines should be unix-style(`\n` aka `\x0A`)
 - Use 4 spaces for indents
 
 ### Submissions
 Code submissions will only be accepted if:
 - Have accompanying test(TBD)
+- The pass formatting checks(TBD)
 - They pass linting
 - They pass testing(TBD)

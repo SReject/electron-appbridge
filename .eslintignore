@@ -1,0 +1,11 @@
+# meta
+.github/
+.vscode/
+
+# node
+node_modules/
+package-lock.json
+
+# project
+dist/
+docs/

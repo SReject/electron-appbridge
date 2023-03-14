@@ -14,11 +14,6 @@
         "browser": true,
         "node": true
     },
-    "ignorePatterns": [
-        "dist/**/*",
-        "out/**/*",
-        "node_modules/**/*"
-    ],
     "globals": {
         "initAppBridge": true
     },

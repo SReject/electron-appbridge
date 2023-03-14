@@ -10,7 +10,11 @@ import {
     type AppBridgeInvokeContext
 } from './bridge';
 
-
+/** Represents a response of an invoke request
+ * @property {number | string} id - The id the response is associated with
+ * @property {AppBridgeReplyStatus} status - The status of the invoke result's response
+ * @property {*} result - The resulting value of the call or incases of an error, the error message
+ */
 type AppBridgeResponse = {
     id: number | string,
     status: AppBridgeReplyStatus,

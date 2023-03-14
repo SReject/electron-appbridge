@@ -7,9 +7,15 @@ import {
     type AppBridgeEmit,
     type AppBridgeInvoke,
     type AppBridgeReplyStatus,
-    type AppBridgeResponse,
     type AppBridgeInvokeContext
-}from './bridge';
+} from './bridge';
+
+
+type AppBridgeResponse = {
+    id: number | string,
+    status: AppBridgeReplyStatus,
+    result: unknown
+};
 
 /** AppBridge Hooked BrowserWindow */
 declare class AppBridgeBrowserWindow extends ElectronBrowserWindow {
@@ -142,7 +148,7 @@ export const appBridge = () : MainAppBridge => {
                         }
                     };
                     browserWindow.webContents.ipc.on('AppBridge:Invoke:Reply', handler);
-                    browserWindow.webContents.send('AppBridge:Invoke', { id, path, context, args});
+                    browserWindow.webContents.send('AppBridge:Invoke', { id, path, context, args });
                 };
 
                 appBridge.hook(hookedEmit, hookedInvoke);

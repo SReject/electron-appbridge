@@ -4,8 +4,15 @@ import type {
     AppBridgeEmit,
     AppBridgeInvokeContext,
     AppBridgeReply,
-    AppBridgeInvoke
+    AppBridgeInvoke,
+    AppBridgeReplyStatus
 } from './bridge';
+
+type AppBridgeInvokeResponse = {
+    id: number | string,
+    status: AppBridgeReplyStatus,
+    result: unknown
+};
 
 let initialized = false;
 const initAppBridge = (renderEmit: AppBridgeEmit, renderInvoke: AppBridgeInvoke) : {emit: AppBridgeEmit, invoke: AppBridgeInvoke} => {
@@ -48,7 +55,7 @@ const initAppBridge = (renderEmit: AppBridgeEmit, renderInvoke: AppBridgeInvoke)
                 id += String.fromCharCode(charCode);
             }
 
-            const handler = (event: Electron.IpcRendererEvent, data: {id: string, status: 'error' | 'ok', result: unknown}) => {
+            const handler = (event: Electron.IpcRendererEvent, data: AppBridgeInvokeResponse) => {
                 if (data.id !== id) {
                     return;
                 }

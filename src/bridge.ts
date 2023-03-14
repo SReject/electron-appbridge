@@ -1,31 +1,78 @@
-export type AppBridgeInvokeContext = 'exists' | 'get' | 'set' | 'invoke';
-
+/** Called when an emit request is received
+ * @param {string} name - The event name to emit
+ * @param {*} [data] - The data to emit with the event
+*/
 export type AppBridgeEmit = (name: string, data?: unknown) => void;
 
+/** Indicates the status of the call */
 export type AppBridgeReplyStatus = 'ok' | 'error';
 
-export type AppBridgeReply = (status: AppBridgeReplyStatus, reason: unknown) => void;
+/** Function to call once a response is ready to send back to the caller
+ * @param {AppBridgeReplyStatus} status - The status to return to the caller
+ * @param {*} result - The result to return; To report an error it should be a string containing the error message
+*/
+export type AppBridgeReply = (status: AppBridgeReplyStatus, result: unknown) => void;
 
-export type AppBridgeResponse = {id: number | string, status: AppBridgeReplyStatus, result: unknown};
+/** The context/disposition of an invoke request */
+export type AppBridgeInvokeContext = 'exists' | 'get' | 'set' | 'invoke';
 
+/** Called when an invoke request is received
+ * @function AppBridgeInvoke
+ * @param {AppBridgeReply} reply - Function to call once a response is ready to send back to the caller
+ * @param {string} path - The path to the registered difinition being acted upon
+ * @param {AppBridgeInvokeContext} context - The action being performed by the invoke
+ * @param {any[]} args - The args, if any that are to be passed to the handler
+ */
 export type AppBridgeInvoke = (reply: AppBridgeReply, path: string, context: AppBridgeInvokeContext, args: unknown[]) => void;
 
+/** Called to handle an emitted event
+  * @function AppBridgeEventHandler
+  * @param {*} [data] - Data emitted with the event
+  */
 export type AppBridgeEventHandler = (data?: unknown) => void;
 
+/** Represents a property/function to register */
 export interface AppBridgeProperty {
+
+    /** The identifier to associate with the property/function; Must be unique
+     * @type {string}
+     */
     path: string,
+
+    /** The type to register. If 'function', the value property must be specified and it must be a function
+     * @type {"function" | "property"}
+     */
     type: 'function' | 'property',
+
+    /** The value associated with the definition. Must not be specified if the 'get' property is set
+     * @type {*}
+     */
     value?: unknown,
+
+    /** A function to handle get requests for the property. Must not be specified if the 'type' property is 'function'.
+     * @returns {*}
+     */
     get?: () => unknown,
+
+    /** A function to handle set requests for the property. Must not be specified if the 'type' property is 'function'.
+     * @param {*} value - The value to set the property to
+     * @returns {*} - Must return the updated value of the property
+     */
     set?: (value: unknown) => unknown
 };
 
+/** Represents the result of creating a new AppBridge instance
+ * @property {AppBridge} appBridge - The AppBridge instance that was created
+ * @property {AppBridgeEmit} emit - Emitter function used to emit local-context events
+ * @property {AppBridgeInvoke} invoke - Invoke function used to invoke locally registered properties/functions
+ */
 export interface AppBridgeDetails {
     appBridge: AppBridge;
     emit: AppBridgeEmit;
     invoke: AppBridgeInvoke
 };
 
+/** An AppBridge instance */
 export interface AppBridge {
 
     /** Adds an event listener
@@ -112,7 +159,6 @@ export interface AppBridge {
 
 const hasOwnProperty = Object.prototype.hasOwnProperty;
 const has = (subject: unknown, property: string) => subject != null && hasOwnProperty.call(subject, property);
-
 const toStr = (subject: unknown, name?: string) : string => {
     if (typeof subject !== 'string' && !(subject instanceof String)) {
         throw new Error(`'${name || 'value'}' argument must be a string`);

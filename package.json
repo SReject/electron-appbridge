@@ -5,6 +5,8 @@
     "scripts": {
         "lint": "eslint .",
         "build": "node build.mjs",
+        "format:check": "prettier --check .",
+        "format": "prettier --write .",
         "declarations": "tsc --emitDeclarationOnly"
     },
     "type": "module",
@@ -65,5 +67,9 @@
     "repository": "github:SReject/electron-appbridge",
     "bugs": {
         "url": "https://github.com/SReject/electron-appbridge/issues"
+    },
+    "prettier": {
+        "tabWidth": 4,
+        "semi": true
     }
 }

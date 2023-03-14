@@ -1,0 +1,21 @@
+name: Bug Report
+description: File a bug report
+title: "[help] "
+labels: ["help"]
+body:
+  - type: input
+    attributes:
+      label: Electron Version
+      description: Which version(s) of electron are you using.
+
+  - type: input
+    attributes:
+      label: Package Version
+      description: Which version(s) of electron-appbridge are you using.
+
+  - type: textarea
+    attributes:
+      label: Help
+      description: Explain what you need help with
+    validations:
+      required: true

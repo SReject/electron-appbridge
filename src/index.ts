@@ -12,15 +12,26 @@ import {
     type AppBridgeInvokeContext
 }from './bridge';
 
-type MainAppBridgeDetails = { appBridge: MainAppBridge, emit: AppBridgeEmit, invoke: AppBridgeInvoke };
-
+/** AppBridge Hooked BrowserWindow */
 declare class AppBridgeBrowserWindow extends ElectronBrowserWindow {
     public readonly appBridge : undefined | MainAppBridge;
 }
 
+/** Main Process AppBridge instance */
 interface MainAppBridge extends Omit<AppBridge, 'hook'> {
-    hook: (browserWindow: ElectronBrowserWindow) => MainAppBridgeDetails;
-    createBrowserWindow: (options: Electron.BrowserWindowConstructorOptions) => AppBridgeBrowserWindow;
+
+    /** Unhooks from any previously hooked window and applies hooks to the specified BrowserWindow.
+     * @param browserWindow - The electron browser window to hook
+     * @returns {AppBridgeBrowserWindow}
+     */
+    hook: (browserWindow: ElectronBrowserWindow) => AppBridgeBrowserWindow;
+
+    /** Creates a new BrowserWindow and hooks it for communication
+     * @param options - BrowserWindow options
+     * @param preload - If true and a preload script has not been specified, the app bridge preload script will be applied
+     * @returns {AppBridgeBrowserWindow}
+    */
+    createBrowserWindow: (options: Electron.BrowserWindowConstructorOptions, preload?: boolean) => AppBridgeBrowserWindow;
 }
 
 let dir : string;
@@ -32,9 +43,19 @@ if (module != null && module.exports) {
     dir = fileURLToPath(new URL('.', import.meta.url));
 }
 
+/** Path the the preload script. currently only .cjs is supported
+ * @type {string}
+*/
 export const preloadPath = resolve(dir, './preload.cjs');
+
+/** Path the the preload script. currently only .cjs is supported
+ * @type {string}
+*/
 export const rendererPath = resolve(dir, './renderer.umd.cjs');
 
+/** Returns a new AppBridge Instance
+  * @returns {MainAppBridge}
+  */
 export const appBridge = () : MainAppBridge => {
     const { appBridge, emit: localEmit, invoke: localInvoke } = createAppBridge();
 

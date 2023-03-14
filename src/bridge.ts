@@ -1,12 +1,17 @@
 export type AppBridgeInvokeContext = 'exists' | 'get' | 'set' | 'invoke';
 
 export type AppBridgeEmit = (name: string, data?: unknown) => void;
+
 export type AppBridgeReplyStatus = 'ok' | 'error';
+
 export type AppBridgeReply = (status: AppBridgeReplyStatus, reason: unknown) => void;
+
 export type AppBridgeResponse = {id: number | string, status: AppBridgeReplyStatus, result: unknown};
+
 export type AppBridgeInvoke = (reply: AppBridgeReply, path: string, context: AppBridgeInvokeContext, args: unknown[]) => void;
 
 export type AppBridgeEventHandler = (data?: unknown) => void;
+
 export interface AppBridgeProperty {
     path: string,
     type: 'function' | 'property',
@@ -14,27 +19,95 @@ export interface AppBridgeProperty {
     get?: () => unknown,
     set?: (value: unknown) => unknown
 };
+
 export interface AppBridgeDetails {
     appBridge: AppBridge;
     emit: AppBridgeEmit;
     invoke: AppBridgeInvoke
-}
+};
+
 export interface AppBridge {
 
+    /** Adds an event listener
+     * @param {string} name - Event name to listen for
+     * @param {AppBridgeEventHandler} handler - Handler to call when the event is emitted
+     * @param {boolean} [once=false] - If true the handler will be removed the next time the event is emitted
+     * @returns
+     */
     on: (name: string, handler: AppBridgeEventHandler, once?: boolean) => void;
+
+    /** Adds an event listener that is removed after the next time the event is emitted
+     * @param name - Event name to listen for
+     * @param handler  - Handler to call when the event is emitted
+     * @returns
+     */
     once: (name: string, handler: AppBridgeEventHandler) => void;
+
+    /** Removes an event listener
+     * @param {string} name - Event name to remove the handler from
+     * @param {AppBridgeEventHandler} handler - Handler that was used when the event listener was registered
+     * @param {boolean} [once=false] - once value used when the handler was registered
+     * @returns
+     */
     off: (name: string, handler: AppBridgeEventHandler, once?: boolean) => void;
+
+    /** Removes all event listeners from the instance
+     * @param {string} [name] - If specified, all event emitters for the specified event name are removed
+     * @returns
+     */
     offAll: (name?: string) => void;
 
+    /** Registers a property/function that can be accessed by the other context's process
+     *
+     * @param {AppBridgeProperty} definition
+     * @returns
+     */
     register: (definition: AppBridgeProperty) => void;
 
+    /** Checks if a property/function has been registered on the other context's process
+     *
+     * @param {string} path - Path of the property/function to check
+     * @returns {Promise<boolean>}
+     */
     exists: (path: string) => Promise<boolean>;
+
+    /** Gets a property's value that has been registered on the other context's process
+     * @param {string} path - Path of the registered property
+     * @returns {Promise<any>}
+     */
     get: <T>(path: string) => Promise<T>;
+
+    /** Sets a property's value that has been registered on the other context's process
+     * @param {string} path - Path of the registered property
+     * @param {any} value - The value to set the property to
+     * @returns {Promise<any>} - The new value for the property
+     */
     set: <T>(path: string, value: T) => Promise<T>;
+
+    /** Invokes a function that has been registered on the other context's process
+     * @param {string} path - Path of the registered function
+     * @param {any[]} args - Args to pass as parameters to the function
+     * @returns {Promise<any>}
+     */
     invoke: <T>(path: string, ...args: unknown[]) => Promise<T>;
+
+    /** Emits an event on the the other context's process
+     * @param {string} name - The event to emit
+     * @param {unknown} [data] - Data to be emitted with the event
+     * @returns {any}
+     */
     emit: (name: string, data?: unknown) => void;
 
+    /** Registers emit and invoke functions for the instance
+     * @param {AppBridgeEmit} emit - Function to handle emitting events
+     * @param {AppBridgeInvoke} invoke - Function to handle invocations
+     * @returns {AppBridgeDetails}
+     */
     hook: (emit: AppBridgeEmit, invoke: AppBridgeInvoke) => AppBridgeDetails;
+
+    /** Unregisters the currently registered emit and invoke function
+     * @returns
+     */
     unhook: () => void;
 };
 
@@ -373,4 +446,4 @@ export default function() : AppBridgeDetails {
     }));
 
     return { appBridge, emit: selfEmit, invoke: selfInvoke };
-}
+};

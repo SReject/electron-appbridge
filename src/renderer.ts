@@ -8,9 +8,4 @@ appBridge.hook(bridgeEmit, bridgeInvoke);
   * @typedef {import('./bridge').AppBridge} appBridge
   * @global
 */
-Object.defineProperty(window, 'appBridge', {
-    writable: false,
-    enumerable: false,
-    configurable: false,
-    value: appBridge
-});
+export default appBridge;

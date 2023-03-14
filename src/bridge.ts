@@ -58,8 +58,7 @@ export interface AppBridge {
     offAll: (name?: string) => void;
 
     /** Registers a property/function that can be accessed by the other context's process
-     *
-     * @param {AppBridgeProperty} definition
+     * @param {AppBridgeProperty} definition - The property/function definition
      * @returns
      */
     register: (definition: AppBridgeProperty) => void;
@@ -121,6 +120,9 @@ const toStr = (subject: unknown, name?: string) : string => {
     return '' + subject;
 };
 
+/** Creates a new AppBridge Instances
+ * @returns {AppBridgeDetails}
+ */
 export default function() : AppBridgeDetails {
     let hooked = false;
     let hookedEmit : undefined | AppBridgeEmit;

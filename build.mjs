@@ -14,44 +14,44 @@ try {
     process.exit(1);
 }
 
-// Build
-const builds = ((...buildOptions) => {
-    const res = [];
+const baseOptions = { outdir: './dist', bundle: false, sourcemap: 'linked', platform: 'node' }
+await Promise.all([
 
-    // Creates an esbuild.build options entry for each build type in res
-    buildOptions.forEach(options => {
-        const base = { outdir: './dist', bundle: false, sourcemap: 'linked', platform: 'node', ...options};
-        if (!Array.isArray(options.format)) {
-            options.format = [ options.format ];
-        }
-        options.format.forEach(format => {
-            const entry = { ...base, format };
-            if (format === 'iife') {
-                entry.platform = 'browser';
-                entry.bundle = true;
-            } else if (format === 'esm') {
-                entry.outExtension = { '.js': '.mjs' };
-            } else {
-                entry.outExtension = { '.js': '.cjs' };
-            }
-            res.push(entry);
-        });
-    });
-
-    // starts building of each entry
-    return res.map(build);
-})(
-    {
+    // build for environments
+    build({
+        ...baseOptions,
         entryPoints: [ './src/index.ts', './src/bridge.ts', './src/preload.ts' ],
-        format: ['cjs', 'esm']
-    }, {
+        format: 'esm',
+        outExtension: { '.js': '.mjs' },
+    }),
+    build({
+        ...baseOptions,
+        entryPoints: [ './src/index.ts', './src/bridge.ts', './src/preload.ts' ],
+        format: 'cjs'
+    }),
+    build({
+        ...baseOptions,
         entryPoints: [ './src/renderer.ts' ],
-        format: 'iife'
-    }
-);
+        format: 'esm',
+        bundle: true,
+        outExtension: { '.js': '.mjs' },
+    }),
+    build({
+        ...baseOptions,
+        entryPoints: [ './src/renderer.ts' ],
+        format: 'cjs',
+        bundle: true
+    }),
+    build({
+        ...baseOptions,
+        entryPoints: [ './src/renderer.ts' ],
+        platform: 'browser',
+        bundle: true,
+        format: 'iife',
+        globalName: 'window.appBridge',
+        outExtension: { '.js': '.iife.js' }
+    }),
 
-
-builds.push(
 
     // Copy package.json, LICENSE, and README.md
     copyFile('./package.json', './dist/package.json'),
@@ -73,10 +73,6 @@ builds.push(
             }
         });
     })
-);
-
-await Promise.all(builds);
-
-
+]);
 
 console.log('done');

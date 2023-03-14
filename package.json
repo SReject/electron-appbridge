@@ -11,32 +11,32 @@
         ".": {
             "types": "./main.d.ts",
             "import": "./main.mjs",
-            "require": "./main.cjs",
-            "default": "./main.cjs"
+            "require": "./main.js",
+            "default": "./main.js"
         },
         "./main": {
             "types": "./main.d.ts",
             "import": "./main.mjs",
-            "require": "./main.cjs",
-            "default": "./main.cjs"
+            "require": "./main.js",
+            "default": "./main.js"
         },
         "./bridge": {
             "types": "./bridge.d.ts",
             "import": "./bridge.mjs",
-            "require": "./bridge.cjs",
-            "default": "./bridge.cjs"
+            "require": "./bridge.js",
+            "default": "./bridge.js"
         },
         "./renderer": {
             "types": "./renderer.d.ts",
             "import": "./renderer.mjs",
-            "require": "./renderer.cjs",
-            "default": "./renderer.cjs"
+            "require": "./renderer.js",
+            "default": "./renderer.js"
         },
         "./preload": {
             "types": "./preload.d.ts",
             "import": "./preload.mjs",
-            "require": "./preload.cjs",
-            "default": "./reload.cjs"
+            "require": "./preload.js",
+            "default": "./reload.js"
         }
     },
     "devDependencies": {

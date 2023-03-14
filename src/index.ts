@@ -1,7 +1,6 @@
 import { BrowserWindow as ElectronBrowserWindow } from 'electron';
 import { resolve } from 'node:path' ;
 import { fileURLToPath } from 'node:url';
-
 import {
     default as createAppBridge,
     type AppBridge,
@@ -43,15 +42,30 @@ if (module != null && module.exports) {
     dir = fileURLToPath(new URL('.', import.meta.url));
 }
 
-/** Path the the preload script. currently only .cjs is supported
+/** Path to the preload CJS script file
  * @type {string}
 */
-export const preloadPath = resolve(dir, './preload.cjs');
+export const preloadPath = resolve(dir, './preload.js');
 
-/** Path the the preload script. currently only .cjs is supported
+/** Path to the preload ESM script file
  * @type {string}
 */
-export const rendererPath = resolve(dir, './renderer.umd.cjs');
+export const preloadPathESM = resolve(dir, './preload.mjs');
+
+/** Path to the renderer-process IIFE script file
+ * @type {string}
+*/
+export const rendererPath = resolve(dir, './renderer.iife.js');
+
+/** Path to the renderer-process CJS script file
+ * @type {string}
+*/
+export const rendererPathCJS = resolve(dir, './renderer.js');
+
+/** Path to the renderer-process ESM script file
+ * @type {string}
+*/
+export const rendererPathESM = resolve(dir, './renderer.mjs');
 
 /** Returns a new AppBridge Instance
   * @returns {MainAppBridge}

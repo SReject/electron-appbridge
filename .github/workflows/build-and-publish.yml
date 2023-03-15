@@ -16,7 +16,7 @@ jobs:
       dobuild: ${{ steps.dobuild.outputs.dobuild }}
 
     steps:
-      - name: Checkout crowbartools/firebot
+      - name: Checkout electron-appbridge/master
         uses: actions/checkout@v3
         with:
           fetch-depth: 0

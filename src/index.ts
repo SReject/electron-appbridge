@@ -2,7 +2,7 @@ import electron from "electron";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
-    default as generateAppBridge,
+    createAppBridge as generateAppBridge,
     type AppBridge,
     type AppBridgeEmit,
     type AppBridgeInvoke,
@@ -56,10 +56,15 @@ if (require && require.main) {
     dir = fileURLToPath(new URL(".", import.meta.url));
 }
 
+/** Path to the preload IIFE script file
+ * @type {string}
+ */
+export const preloadPath = resolve(dir, "./preload.iife.js");
+
 /** Path to the preload CJS script file
  * @type {string}
  */
-export const preloadPath = resolve(dir, "./preload.js");
+export const preloadPathCJS = resolve(dir, "./preload.cjs");
 
 /** Path to the preload ESM script file
  * @type {string}
@@ -74,7 +79,7 @@ export const rendererPath = resolve(dir, "./renderer.iife.js");
 /** Path to the renderer-process CJS script file
  * @type {string}
  */
-export const rendererPathCJS = resolve(dir, "./renderer.js");
+export const rendererPathCJS = resolve(dir, "./renderer.cjs");
 
 /** Path to the renderer-process ESM script file
  * @type {string}
@@ -268,7 +273,11 @@ export const createAppBridge = (): MainAppBridge => {
     });
 
     Object.entries(appBridge).forEach(([key, value]) => {
-        if (key === "hook") {
+        if (
+            key === "hook" ||
+            key === "unhook" ||
+            key === "createBrowserWindow"
+        ) {
             return;
         }
         Object.defineProperty(bridge, key, {

@@ -176,7 +176,7 @@ const toStr = (subject: unknown, name?: string): string => {
 /** Creates a new AppBridge Instances
  * @returns {AppBridgeDetails}
  */
-export default function (): AppBridgeDetails {
+export function createAppBridge(): AppBridgeDetails {
     let hooked = false;
     let hookedEmit: undefined | AppBridgeEmit;
     let hookedInvoke: undefined | AppBridgeInvoke;

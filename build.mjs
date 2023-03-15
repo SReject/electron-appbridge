@@ -62,6 +62,15 @@ await Promise.all([
     }),
     build({
         ...baseOptions,
+        entryPoints: ["./src/preload.ts"],
+        format: "iife",
+        bundle: true,
+        outExtension: { ".js": ".iife.js" },
+        external: ["electron"],
+        globalName: "preload"
+    }),
+    build({
+        ...baseOptions,
         entryPoints: ["./src/renderer.ts"],
         format: "esm",
         bundle: true,
@@ -86,7 +95,10 @@ await Promise.all([
         format: "iife",
         globalName: "window.appBridge",
         outExtension: { ".js": ".iife.js" },
-        external: ["electron"]
+        external: ["electron"],
+
+        // this is here to unwrap the default export as esbuild doesn't provide such an option
+        footer: { js: ";window.appBridge = window.appBridge.default;" }
     }),
 
     // Copy package.json, LICENSE, and README.md

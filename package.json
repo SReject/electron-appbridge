@@ -1,23 +1,27 @@
 {
     "name": "electron-appbridge",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "license": "ISC",
     "scripts": {
-        "build": "tsc --emitDeclarationOnly && vite build --sourcemap=true && vite build --sourcemap=true --config=renderer.vite.config.js"
+        "lint": "eslint .",
+        "build": "node build.mjs",
+        "format:check": "prettier --check .",
+        "format": "prettier --write .",
+        "declarations": "tsc --emitDeclarationOnly"
     },
     "type": "module",
     "exports": {
         ".": {
-            "types": "./main.d.ts",
-            "import": "./main.mjs",
-            "require": "./main.cjs",
-            "default": "./main.cjs"
+            "types": "./index.d.ts",
+            "import": "./index.mjs",
+            "require": "./index.cjs",
+            "default": "./index.cjs"
         },
         "./main": {
-            "types": "./main.d.ts",
-            "import": "./main.mjs",
-            "require": "./main.cjs",
-            "default": "./main.cjs"
+            "types": "./index.d.ts",
+            "import": "./index.mjs",
+            "require": "./index.cjs",
+            "default": "./index.cjs"
         },
         "./bridge": {
             "types": "./bridge.d.ts",
@@ -42,12 +46,12 @@
         "@types/node": "^18.14.2",
         "@typescript-eslint/eslint-plugin": "^5.54.0",
         "@typescript-eslint/parser": "^5.54.0",
+        "esbuild": "^0.17.11",
         "eslint": "^8.35.0",
         "eslint-config-prettier": "^8.7.0",
         "eslint-plugin-prettier": "^4.2.1",
         "prettier": "^2.8.4",
         "typescript": "^4.9.5",
-        "vite": "^4.1.4",
         "vite-plugin-static-copy": "^0.13.1"
     },
     "peerDependencies": {
@@ -63,5 +67,10 @@
     "repository": "github:SReject/electron-appbridge",
     "bugs": {
         "url": "https://github.com/SReject/electron-appbridge/issues"
+    },
+    "prettier": {
+        "tabWidth": 4,
+        "semi": true,
+        "trailingComma": "none"
     }
 }

@@ -1,0 +1,16 @@
+root = true
+
+[*.{json,md}]
+charset = utf-8
+end_of_line = lf
+indent_size = 4
+indent_style = space
+trim_trailing_whitespace = true
+
+[src/**.ts]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = false
+indent_style = space
+indent_size = 4
+trim_trailing_whitespace = true

@@ -1,0 +1,24 @@
+name: Request Feature
+description: Request a change or enhancement
+title: "[request] "
+labels: ["enhancement"]
+body:
+
+  - type: textarea
+    attributes:
+      label: Request
+      description: A concise description of the feature request
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Use case
+      description: A concise description of your use case.
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Additional information
+      description: Any additional information to include with the feature request.

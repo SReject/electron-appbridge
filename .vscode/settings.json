@@ -1,0 +1,19 @@
+{
+    "prettier.tabWidth": 4,
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "[typescript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "files.eol": "\n",
+        "editor.formatOnSave": true
+    },
+    "[json]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "files.eol": "\n",
+        "editor.formatOnSave": true
+    },
+    "[javascript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "files.eol": "\n",
+        "editor.formatOnSave": true
+    }
+}

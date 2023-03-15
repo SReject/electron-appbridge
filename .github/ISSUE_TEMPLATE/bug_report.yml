@@ -1,0 +1,38 @@
+name: Bug Report
+description: File a bug report
+title: "[Bug] "
+labels: ["bug"]
+body:
+
+  - type: input
+    attributes:
+      label: Electron Version
+      description: Which version(s) of electron are experiencing the issue.
+    validations:
+      required: true
+
+  - type: input
+    attributes:
+      label: Package Version
+      description: Which version(s) of electron-appbridge are experiencing the issue.
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Current Behavior
+      description: A concise description of what you're experiencing.
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Expected Behavior
+      description: A concise description of what you expect.
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Additional information
+      description: Any additional information to include with the bug report.

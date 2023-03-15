@@ -1,14 +1,24 @@
-import { contextBridge, ipcRenderer } from 'electron';
+import { contextBridge, ipcRenderer } from "electron";
 
 import type {
     AppBridgeEmit,
     AppBridgeInvokeContext,
     AppBridgeReply,
-    AppBridgeInvoke
-} from './bridge';
+    AppBridgeInvoke,
+    AppBridgeReplyStatus
+} from "./bridge";
+
+type AppBridgeInvokeResponse = {
+    id: number | string;
+    status: AppBridgeReplyStatus;
+    result: unknown;
+};
 
 let initialized = false;
-const initAppBridge = (renderEmit: AppBridgeEmit, renderInvoke: AppBridgeInvoke) : {emit: AppBridgeEmit, invoke: AppBridgeInvoke} => {
+const initAppBridge = (
+    renderEmit: AppBridgeEmit,
+    renderInvoke: AppBridgeInvoke
+): { emit: AppBridgeEmit; invoke: AppBridgeInvoke } => {
     if (initialized) {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-expect-error
@@ -17,24 +27,40 @@ const initAppBridge = (renderEmit: AppBridgeEmit, renderInvoke: AppBridgeInvoke)
 
     initialized = true;
 
-    ipcRenderer.on('AppBridge:Emit', (ignore: Electron.IpcRendererEvent, { name, data }) => {
-        renderEmit(name, data);
-    });
+    ipcRenderer.on(
+        "AppBridge:Emit",
+        (ignore: Electron.IpcRendererEvent, { name, data }) => {
+            renderEmit(name, data);
+        }
+    );
 
-    ipcRenderer.on('AppBridge:Invoke', (ignore: Electron.IpcRendererEvent, {id, path, context, args}) => {
-        const reply : AppBridgeReply = (status: 'error' | 'ok', result: unknown) => {
-            ipcRenderer.send('AppBridge:Invoke:Reply', {
+    ipcRenderer.on(
+        "AppBridge:Invoke",
+        (ignore: Electron.IpcRendererEvent, { id, path, context, args }) => {
+            console.log(
+                "Invoke received from main, passing it to renderer",
                 id,
-                status,
-                result
-            });
-        };
-        renderInvoke(reply, path, context, args);
-    });
+                path,
+                context,
+                args
+            );
+            const reply: AppBridgeReply = (
+                status: "error" | "ok",
+                result: unknown
+            ) => {
+                ipcRenderer.send("AppBridge:Invoke:Reply", {
+                    id,
+                    status,
+                    result
+                });
+            };
+            renderInvoke(reply, path, context, args);
+        }
+    );
 
     return {
         emit: (name: string, data?: unknown) => {
-            ipcRenderer.send(name, data);
+            ipcRenderer.send("AppBridge:Emit", { name, data });
         },
         invoke: <AppBridgeInvoke>((
             reply: AppBridgeReply,
@@ -42,25 +68,34 @@ const initAppBridge = (renderEmit: AppBridgeEmit, renderInvoke: AppBridgeInvoke)
             context: AppBridgeInvokeContext,
             args: unknown[]
         ) => {
-            let id = '';
+            console.log(
+                "Invoke received from renderer, passing it on to main",
+                path,
+                context,
+                args
+            );
+            let id = "";
             for (let idx = 0; idx < 64; idx += 1) {
                 const charCode = Math.floor(Math.random() * (126 - 32)) + 33;
                 id += String.fromCharCode(charCode);
             }
 
-            const handler = (event: Electron.IpcRendererEvent, data: {id: string, status: 'error' | 'ok', result: unknown}) => {
+            const handler = (
+                event: Electron.IpcRendererEvent,
+                data: AppBridgeInvokeResponse
+            ) => {
                 if (data.id !== id) {
                     return;
                 }
-                ipcRenderer.removeListener('AppBridge:Invoke:Reply', handler);
-                if (data.status === 'ok') {
-                    reply('ok', data.result);
+                ipcRenderer.removeListener("AppBridge:Invoke:Reply", handler);
+                if (data.status === "ok") {
+                    reply("ok", data.result);
                 } else {
-                    reply('error', data.result);
+                    reply("error", data.result);
                 }
             };
-            ipcRenderer.on('AppBridge:Invoke:Reply', handler);
-            ipcRenderer.send('AppBridge:Invoke', {
+            ipcRenderer.on("AppBridge:Invoke:Reply", handler);
+            ipcRenderer.send("AppBridge:Invoke", {
                 id,
                 path,
                 context,
@@ -72,4 +107,4 @@ const initAppBridge = (renderEmit: AppBridgeEmit, renderInvoke: AppBridgeInvoke)
 
 export type initializeAppBridge = typeof initAppBridge;
 
-contextBridge.exposeInMainWorld('initializeRendererAppBridge', initAppBridge);
+contextBridge.exposeInMainWorld("initializeRendererAppBridge", initAppBridge);

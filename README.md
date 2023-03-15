@@ -2,6 +2,11 @@
 
 A wrapper to facilitate easy communication between the various Eectronjs app's processes
 
+## Work in Progress
+This project is a work in progress. While attempts will be made to follow typical semvar patterns, that will not be guaranteed until the first major release(`1.x.x`).
+
+Likewise, it is not guaranteed to be bug free
+
 ## Installation
 
 NPM:

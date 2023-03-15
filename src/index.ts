@@ -1,14 +1,16 @@
-import { BrowserWindow as ElectronBrowserWindow } from "electron";
+import electron from "electron";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
-    default as createAppBridge,
+    default as generateAppBridge,
     type AppBridge,
     type AppBridgeEmit,
     type AppBridgeInvoke,
     type AppBridgeReplyStatus,
-    type AppBridgeInvokeContext,
+    type AppBridgeInvokeContext
 } from "./bridge";
+
+const { BrowserWindow: ElectronBrowserWindow } = electron;
 
 /** Represents a response of an invoke request
  * @property {number | string} id - The id the response is associated with
@@ -22,7 +24,7 @@ type AppBridgeResponse = {
 };
 
 /** AppBridge Hooked BrowserWindow */
-declare class AppBridgeBrowserWindow extends ElectronBrowserWindow {
+declare class AppBridgeBrowserWindow extends Electron.BrowserWindow {
     public readonly appBridge: undefined | MainAppBridge;
 }
 
@@ -32,7 +34,7 @@ interface MainAppBridge extends Omit<AppBridge, "hook"> {
      * @param browserWindow - The electron browser window to hook
      * @returns {AppBridgeBrowserWindow}
      */
-    hook: (browserWindow: ElectronBrowserWindow) => AppBridgeBrowserWindow;
+    hook: (browserWindow: Electron.BrowserWindow) => AppBridgeBrowserWindow;
 
     /** Creates a new BrowserWindow and hooks it for communication
      * @param options - BrowserWindow options
@@ -46,7 +48,7 @@ interface MainAppBridge extends Omit<AppBridge, "hook"> {
 }
 
 let dir: string;
-if (module != null && module.exports) {
+if (require && require.main) {
     dir = __dirname;
 } else {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -82,12 +84,12 @@ export const rendererPathESM = resolve(dir, "./renderer.mjs");
 /** Returns a new AppBridge Instance
  * @returns {MainAppBridge}
  */
-export const appBridge = (): MainAppBridge => {
+export const createAppBridge = (): MainAppBridge => {
     const {
         appBridge,
         emit: localEmit,
-        invoke: localInvoke,
-    } = createAppBridge();
+        invoke: localInvoke
+    } = generateAppBridge();
 
     let hookedWindow: undefined | AppBridgeBrowserWindow;
 
@@ -122,27 +124,27 @@ export const appBridge = (): MainAppBridge => {
                     writable: true,
                     enumerable: true,
                     configurable: false,
-                    value: bridge,
+                    value: bridge
                 });
 
                 bridge.hook(browserWindow);
 
                 return <AppBridgeBrowserWindow>browserWindow;
-            },
+            }
         },
         hook: {
             configurable: false,
             writable: false,
             enumerable: true,
             value: (
-                browserWindow: ElectronBrowserWindow
+                browserWindow: electron.BrowserWindow
             ): AppBridgeBrowserWindow => {
                 bridge.unhook();
 
                 const hookedEmit: AppBridgeEmit = (name, data) => {
                     browserWindow.webContents.send("AppBridge:Emit", {
                         name,
-                        data,
+                        data
                     });
                 };
 
@@ -185,7 +187,7 @@ export const appBridge = (): MainAppBridge => {
                         id,
                         path,
                         context,
-                        args,
+                        args
                     });
                 };
 
@@ -234,11 +236,11 @@ export const appBridge = (): MainAppBridge => {
                     writable: true,
                     enumerable: true,
                     configurable: false,
-                    value: bridge,
+                    value: bridge
                 });
 
                 return <AppBridgeBrowserWindow>browserWindow;
-            },
+            }
         },
         unhook: {
             configurable: false,
@@ -261,8 +263,8 @@ export const appBridge = (): MainAppBridge => {
                     );
                     hookedWindow = undefined;
                 }
-            },
-        },
+            }
+        }
     });
 
     Object.entries(appBridge).forEach(([key, value]) => {
@@ -273,7 +275,7 @@ export const appBridge = (): MainAppBridge => {
             writable: false,
             configurable: false,
             enumerable: true,
-            value,
+            value
         });
     });
 

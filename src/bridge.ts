@@ -379,13 +379,13 @@ export default function (): AppBridgeDetails {
         Object.create(null, {
             on: {
                 ...propBase,
-                value: addEventListener,
+                value: addEventListener
             },
             once: {
                 ...propBase,
                 value: (name: string, handler: AppBridgeEventHandler): void => {
                     addEventListener(name, handler, true);
-                },
+                }
             },
             off: {
                 ...propBase,
@@ -437,7 +437,7 @@ export default function (): AppBridgeDetails {
                             break;
                         }
                     }
-                },
+                }
             },
             offAll: {
                 ...propBase,
@@ -451,7 +451,7 @@ export default function (): AppBridgeDetails {
                         return;
                     }
                     delete eventListeners[name];
-                },
+                }
             },
             emit: {
                 ...propBase,
@@ -464,27 +464,27 @@ export default function (): AppBridgeDetails {
                     }
                     name = toStr(name, "name");
                     hookedEmit(name, data);
-                },
+                }
             },
             exists: {
                 ...propBase,
                 value: <T>(path: string): Promise<T> =>
-                    sendInvoke(path, "exists", []),
+                    sendInvoke(path, "exists", [])
             },
             get: {
                 ...propBase,
                 value: <T>(path: string): Promise<T> =>
-                    sendInvoke(path, "get", []),
+                    sendInvoke(path, "get", [])
             },
             set: {
                 ...propBase,
                 value: <T>(path: string, value?: unknown): Promise<T> =>
-                    sendInvoke(path, "set", [value]),
+                    sendInvoke(path, "set", [value])
             },
             invoke: {
                 ...propBase,
                 value: <T>(path: string, ...args: unknown[]): Promise<T> =>
-                    sendInvoke(path, "invoke", args),
+                    sendInvoke(path, "invoke", args)
             },
             register: {
                 ...propBase,
@@ -506,7 +506,7 @@ export default function (): AppBridgeDetails {
                         }
                         properties[path] = {
                             type: "function",
-                            get: () => value,
+                            get: () => value
                         };
                     } else if (strType !== "property") {
                         throw new Error(
@@ -534,7 +534,7 @@ export default function (): AppBridgeDetails {
                         properties[path] = {
                             type: "property",
                             get,
-                            set,
+                            set
                         };
                     } else if (get != null) {
                         if (typeof get !== "function") {
@@ -547,17 +547,17 @@ export default function (): AppBridgeDetails {
                         }
                         properties[path] = {
                             type: "property",
-                            get,
+                            get
                         };
                     } else if (value !== undefined) {
                         properties[path] = {
                             type: "property",
-                            get: () => value,
+                            get: () => value
                         };
                     } else {
                         throw new Error("invalid definition");
                     }
-                },
+                }
             },
             hook: {
                 ...propBase,
@@ -570,7 +570,7 @@ export default function (): AppBridgeDetails {
                     hookedInvoke = invoke;
 
                     return { appBridge, emit: selfEmit, invoke: selfInvoke };
-                },
+                }
             },
             unhook: {
                 ...propBase,
@@ -580,8 +580,8 @@ export default function (): AppBridgeDetails {
                     hookedEmit = undefined;
                     hookedInvoke = undefined;
                     hooked = false;
-                },
-            },
+                }
+            }
         })
     );
 

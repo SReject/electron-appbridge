@@ -12,34 +12,34 @@
     "type": "module",
     "exports": {
         ".": {
-            "types": "./main.d.ts",
-            "import": "./main.mjs",
-            "require": "./main.js",
-            "default": "./main.js"
+            "types": "./index.d.ts",
+            "import": "./index.mjs",
+            "require": "./index.cjs",
+            "default": "./index.cjs"
         },
         "./main": {
-            "types": "./main.d.ts",
-            "import": "./main.mjs",
-            "require": "./main.js",
-            "default": "./main.js"
+            "types": "./index.d.ts",
+            "import": "./index.mjs",
+            "require": "./index.cjs",
+            "default": "./index.cjs"
         },
         "./bridge": {
             "types": "./bridge.d.ts",
             "import": "./bridge.mjs",
-            "require": "./bridge.js",
-            "default": "./bridge.js"
+            "require": "./bridge.cjs",
+            "default": "./bridge.cjs"
         },
         "./renderer": {
             "types": "./renderer.d.ts",
             "import": "./renderer.mjs",
-            "require": "./renderer.js",
-            "default": "./renderer.js"
+            "require": "./renderer.cjs",
+            "default": "./renderer.cjs"
         },
         "./preload": {
             "types": "./preload.d.ts",
             "import": "./preload.mjs",
-            "require": "./preload.js",
-            "default": "./reload.js"
+            "require": "./preload.cjs",
+            "default": "./reload.cjs"
         }
     },
     "devDependencies": {
@@ -70,6 +70,7 @@
     },
     "prettier": {
         "tabWidth": 4,
-        "semi": true
+        "semi": true,
+        "trailingComma": "none"
     }
 }

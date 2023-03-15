@@ -19,6 +19,26 @@ const baseOptions = {
     bundle: false,
     sourcemap: "linked",
     platform: "node",
+    external: ["electron"]
+};
+
+const fixImportPath = (suffix) => {
+    return {
+        name: "add-extension",
+        setup(build) {
+            build.onResolve({ filter: /[\\/].+$/ }, (args) => {
+                if (
+                    args.kind === "import-statement" ||
+                    args.kind === "require-call"
+                ) {
+                    return {
+                        path: `${args.path}.${suffix}`,
+                        external: true
+                    };
+                }
+            });
+        }
+    };
 };
 await Promise.all([
     // build for environments
@@ -26,12 +46,19 @@ await Promise.all([
         ...baseOptions,
         entryPoints: ["./src/index.ts", "./src/bridge.ts", "./src/preload.ts"],
         format: "esm",
+        bundle: true,
         outExtension: { ".js": ".mjs" },
+        plugins: [fixImportPath("mjs")],
+        external: ["electron"]
     }),
     build({
         ...baseOptions,
         entryPoints: ["./src/index.ts", "./src/bridge.ts", "./src/preload.ts"],
         format: "cjs",
+        bundle: true,
+        outExtension: { ".js": ".cjs" },
+        plugins: [fixImportPath("cjs")],
+        external: ["electron"]
     }),
     build({
         ...baseOptions,
@@ -39,12 +66,17 @@ await Promise.all([
         format: "esm",
         bundle: true,
         outExtension: { ".js": ".mjs" },
+        plugins: [fixImportPath("mjs")],
+        external: ["electron"]
     }),
     build({
         ...baseOptions,
         entryPoints: ["./src/renderer.ts"],
         format: "cjs",
+        outExtension: { ".js": ".cjs" },
+        plugins: [fixImportPath("cjs")],
         bundle: true,
+        external: ["electron"]
     }),
     build({
         ...baseOptions,
@@ -54,6 +86,7 @@ await Promise.all([
         format: "iife",
         globalName: "window.appBridge",
         outExtension: { ".js": ".iife.js" },
+        external: ["electron"]
     }),
 
     // Copy package.json, LICENSE, and README.md
@@ -75,7 +108,7 @@ await Promise.all([
                 resolve(stdout);
             }
         });
-    }),
+    })
 ]);
 
 console.log("done");

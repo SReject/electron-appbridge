@@ -37,6 +37,13 @@ const initAppBridge = (
     ipcRenderer.on(
         "AppBridge:Invoke",
         (ignore: Electron.IpcRendererEvent, { id, path, context, args }) => {
+            console.log(
+                "Invoke received from main, passing it to renderer",
+                id,
+                path,
+                context,
+                args
+            );
             const reply: AppBridgeReply = (
                 status: "error" | "ok",
                 result: unknown
@@ -53,7 +60,7 @@ const initAppBridge = (
 
     return {
         emit: (name: string, data?: unknown) => {
-            ipcRenderer.send(name, data);
+            ipcRenderer.send("AppBridge:Emit", { name, data });
         },
         invoke: <AppBridgeInvoke>((
             reply: AppBridgeReply,
@@ -61,6 +68,12 @@ const initAppBridge = (
             context: AppBridgeInvokeContext,
             args: unknown[]
         ) => {
+            console.log(
+                "Invoke received from renderer, passing it on to main",
+                path,
+                context,
+                args
+            );
             let id = "";
             for (let idx = 0; idx < 64; idx += 1) {
                 const charCode = Math.floor(Math.random() * (126 - 32)) + 33;

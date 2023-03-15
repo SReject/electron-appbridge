@@ -159,6 +159,13 @@ export const createAppBridge = (): MainAppBridge => {
                     context,
                     args
                 ): void => {
+                    console.log(
+                        "[Main] .invoke() called, sending it to preload",
+                        path,
+                        context,
+                        args
+                    );
+
                     let id = "";
                     for (let idx = 0; idx < 64; idx += 1) {
                         const charCode =
@@ -219,6 +226,13 @@ export const createAppBridge = (): MainAppBridge => {
                             args: unknown[];
                         }
                     ) => {
+                        console.log(
+                            "[Main] Invoke received from preload",
+                            data.id,
+                            data.path,
+                            data.context,
+                            data.args
+                        );
                         const reply = (
                             status: AppBridgeReplyStatus,
                             result: unknown

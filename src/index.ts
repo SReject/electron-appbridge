@@ -226,13 +226,6 @@ export const createAppBridge = (): MainAppBridge => {
                             args: unknown[];
                         }
                     ) => {
-                        console.log(
-                            "[Main] Invoke received from preload",
-                            data.id,
-                            data.path,
-                            data.context,
-                            data.args
-                        );
                         const reply = (
                             status: AppBridgeReplyStatus,
                             result: unknown
@@ -258,7 +251,7 @@ export const createAppBridge = (): MainAppBridge => {
                     value: bridge
                 });
 
-                return <AppBridgeBrowserWindow>browserWindow;
+                return (hookedWindow = <AppBridgeBrowserWindow>browserWindow);
             }
         },
         unhook: {

@@ -5,7 +5,7 @@ import type {
     AppBridgeInvokeContext,
     AppBridgeReply,
     AppBridgeInvoke,
-    AppBridgeReplyStatus,
+    AppBridgeReplyStatus
 } from "./bridge";
 
 type AppBridgeInvokeResponse = {
@@ -44,7 +44,7 @@ const initAppBridge = (
                 ipcRenderer.send("AppBridge:Invoke:Reply", {
                     id,
                     status,
-                    result,
+                    result
                 });
             };
             renderInvoke(reply, path, context, args);
@@ -86,9 +86,9 @@ const initAppBridge = (
                 id,
                 path,
                 context,
-                args,
+                args
             });
-        }),
+        })
     };
 };
 

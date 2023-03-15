@@ -159,13 +159,6 @@ export const createAppBridge = (): MainAppBridge => {
                     context,
                     args
                 ): void => {
-                    console.log(
-                        "[Main] .invoke() called, sending it to preload",
-                        path,
-                        context,
-                        args
-                    );
-
                     let id = "";
                     for (let idx = 0; idx < 64; idx += 1) {
                         const charCode =

@@ -257,8 +257,6 @@ export function createAppBridge(): AppBridgeDetails {
         context: AppBridgeInvokeContext,
         args: unknown[]
     ): void => {
-        console.log("Local Invoke called:", path, context, args);
-
         if (typeof path !== "string" && !(<unknown>path instanceof String)) {
             return reply("error", "'path' argument must be a string");
         }
@@ -329,8 +327,6 @@ export function createAppBridge(): AppBridgeDetails {
         context: AppBridgeInvokeContext,
         args: unknown[]
     ): Promise<T> => {
-        console.log("Sending Invoke", path, context, args);
-
         if (!hooked || hookedInvoke == null) {
             hooked = false;
             hookedEmit = undefined;

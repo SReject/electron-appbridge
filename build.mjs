@@ -1,12 +1,18 @@
 import { build } from "esbuild";
-import { mkdirSync, rmSync } from "node:fs";
+import {
+    mkdirSync,
+    rmSync
+} from "node:fs";
 import { copyFile } from "node:fs/promises";
 import { exec } from "node:child_process";
 
 // Remove ./dist dir
 console.info("Preparing output directory");
 try {
-    rmSync("./dist/", { recursive: true, force: true });
+    rmSync("./dist/", {
+        recursive: true,
+        force: true
+    });
     mkdirSync("./dist/");
     console.info("Output directory ready");
 } catch (error) {
@@ -27,10 +33,7 @@ const fixImportPath = (suffix) => {
         name: "add-extension",
         setup(build) {
             build.onResolve({ filter: /[\\/].+$/ }, (args) => {
-                if (
-                    args.kind === "import-statement" ||
-                    args.kind === "require-call"
-                ) {
+                if (args.kind === "import-statement" || args.kind === "require-call") {
                     return {
                         path: `${args.path}.${suffix}`,
                         external: true
@@ -44,7 +47,11 @@ await Promise.all([
     // build for environments
     build({
         ...baseOptions,
-        entryPoints: ["./src/index.ts", "./src/bridge.ts", "./src/preload.ts"],
+        entryPoints: [
+            "./src/index.ts",
+            "./src/bridge.ts",
+            "./src/preload.ts"
+        ],
         format: "esm",
         bundle: true,
         outExtension: { ".js": ".mjs" },
@@ -53,7 +60,11 @@ await Promise.all([
     }),
     build({
         ...baseOptions,
-        entryPoints: ["./src/index.ts", "./src/bridge.ts", "./src/preload.ts"],
+        entryPoints: [
+            "./src/index.ts",
+            "./src/bridge.ts",
+            "./src/preload.ts"
+        ],
         format: "cjs",
         bundle: true,
         outExtension: { ".js": ".cjs" },

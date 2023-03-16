@@ -11,10 +11,7 @@ export type AppBridgeReplyStatus = "ok" | "error";
  * @param {AppBridgeReplyStatus} status - The status to return to the caller
  * @param {*} result - The result to return; To report an error it should be a string containing the error message
  */
-export type AppBridgeReply = (
-    status: AppBridgeReplyStatus,
-    result: unknown
-) => void;
+export type AppBridgeReply = (status: AppBridgeReplyStatus, result: unknown) => void;
 
 /** The context/disposition of an invoke request */
 export type AppBridgeInvokeContext = "exists" | "get" | "set" | "invoke";
@@ -26,12 +23,7 @@ export type AppBridgeInvokeContext = "exists" | "get" | "set" | "invoke";
  * @param {AppBridgeInvokeContext} context - The action being performed by the invoke
  * @param {any[]} args - The args, if any that are to be passed to the handler
  */
-export type AppBridgeInvoke = (
-    reply: AppBridgeReply,
-    path: string,
-    context: AppBridgeInvokeContext,
-    args: unknown[]
-) => void;
+export type AppBridgeInvoke = (reply: AppBridgeReply, path: string, context: AppBridgeInvokeContext, args: unknown[]) => void;
 
 /** Called to handle an emitted event
  * @function AppBridgeEventHandler
@@ -164,12 +156,12 @@ export interface AppBridge {
 }
 
 const hasOwnProperty = Object.prototype.hasOwnProperty;
-const has = (subject: unknown, property: string) =>
-    subject != null && hasOwnProperty.call(subject, property);
+const has = (subject: unknown, property: string) => subject != null && hasOwnProperty.call(subject, property);
 const toStr = (subject: unknown, name?: string): string => {
     if (typeof subject !== "string" && !(subject instanceof String)) {
         throw new Error(`'${name || "value"}' argument must be a string`);
     }
+
     return "" + subject;
 };
 
@@ -183,7 +175,10 @@ export function createAppBridge(): AppBridgeDetails {
 
     let eventListeners: Record<
         string,
-        { handler: AppBridgeEventHandler; once: boolean }[]
+        {
+            handler: AppBridgeEventHandler;
+            once: boolean
+        }[]
     > = {};
 
     const properties: Record<
@@ -197,50 +192,57 @@ export function createAppBridge(): AppBridgeDetails {
 
     let pendingInvokes: (() => void)[] = [];
 
-    const addEventListener = (
-        name: string,
-        handler: AppBridgeEventHandler,
-        once = false
-    ): void => {
+    const addEventListener = (name: string, handler: AppBridgeEventHandler, once = false): void => {
         name = toStr(name, "name");
+
         if (typeof handler !== "function") {
             throw new Error("'handler' must be a function");
         }
-        if (
-            once != null &&
-            typeof once != "boolean" &&
-            !(<unknown>once instanceof Boolean)
-        ) {
+
+        if (once != null && typeof once != "boolean" && !(<unknown>once instanceof Boolean)) {
             throw new Error("'once' must be boolean when specified");
         }
+
         once = once == true;
         if (
             !has(eventListeners, name) ||
-            eventListeners[name] == null ||
-            eventListeners[name].length === 0
+            eventListeners[ name ] == null ||
+            eventListeners[ name ].length === 0
         ) {
-            eventListeners[name] = [{ handler, once }];
+            eventListeners[ name ] = [{
+                handler,
+                once
+            }];
         } else {
-            eventListeners[name].unshift({ handler, once });
+            eventListeners[ name ].unshift({
+                handler,
+                once
+            });
         }
     };
     const selfEmit: AppBridgeEmit = (name: string, data?: unknown): void => {
         name = toStr(name, "name");
 
-        if (!has(eventListeners, name) || eventListeners[name] == null) {
+        if (
+            !has(eventListeners, name) ||
+            eventListeners[ name ] == null
+        ) {
             return;
         }
-        const listeners = eventListeners[name];
+        const listeners = eventListeners[ name ];
 
         if (listeners.length === 0) {
-            delete eventListeners[name];
+            delete eventListeners[ name ];
             return;
         }
 
         let idx = listeners.length;
         while (idx) {
             idx -= 1;
-            const { handler, once } = listeners[idx];
+            const {
+                handler,
+                once
+            } = listeners[ idx ];
 
             if (once) {
                 listeners.splice(idx, 1);
@@ -248,7 +250,7 @@ export function createAppBridge(): AppBridgeDetails {
             setTimeout(() => handler(data), 0);
         }
         if (listeners.length === 0) {
-            delete eventListeners[name];
+            delete eventListeners[ name ];
         }
     };
     const selfInvoke: AppBridgeInvoke = (
@@ -257,8 +259,6 @@ export function createAppBridge(): AppBridgeDetails {
         context: AppBridgeInvokeContext,
         args: unknown[]
     ): void => {
-        console.log("Local Invoke called:", path, context, args);
-
         if (typeof path !== "string" && !(<unknown>path instanceof String)) {
             return reply("error", "'path' argument must be a string");
         }
@@ -268,39 +268,41 @@ export function createAppBridge(): AppBridgeDetails {
             context !== "set" &&
             context !== "invoke"
         ) {
-            return reply(
-                "error",
-                "'context' argument must be 'exists' or 'get' or 'set' or 'invoke"
-            );
+            return reply("error", "'context' argument must be 'exists' or 'get' or 'set' or 'invoke");
         }
+
         if (args != null && !Array.isArray(args)) {
-            return reply(
-                "error",
-                "'args' argument must be an array when specified"
-            );
+            return reply("error", "'args' argument must be an array when specified");
         }
-        const exists = has(properties, path) && properties[path] != null;
+
+        const exists = has(properties, path) && properties[ path ] != null;
         if (context === "exists") {
             return reply("ok", exists);
         }
+
         if (!exists) {
             return reply("error", `'${path}' is not defined`);
         }
 
-        const entry = properties[path];
+        const entry = properties[ path ];
 
         let res: unknown;
         if (entry.type === "function") {
             if (context !== "invoke") {
                 return reply("error", `'${path}' is a function`);
             }
+
             res = (<(...args: unknown[]) => unknown>entry.get())(...args);
+
         } else if (context === "invoke") {
             return reply("error", `'${path}' is a non-invocable property`);
+
         } else if (context === "get") {
             res = entry.get();
+
         } else if (has(entry, "set") && typeof entry.set === "function") {
-            res = entry.set(args[0]);
+            res = entry.set(args[ 0 ]);
+
         } else {
             return reply("error", `'${path}' is not settable`);
         }
@@ -308,20 +310,16 @@ export function createAppBridge(): AppBridgeDetails {
         if (res instanceof Error) {
             return reply("error", res.message);
         }
+
         if (!(res instanceof Promise)) {
             return reply("ok", res);
         }
 
         res.then(
             (result) => reply("ok", result),
-            (reason) =>
-                reply(
-                    "error",
-                    reason instanceof Error ? reason.message : reason
-                )
-        ).catch((error) =>
-            reply("error", error instanceof Error ? error.message : error)
-        );
+            (reason) => reply("error", reason instanceof Error ? reason.message : reason)
+        )
+            .catch((error) => reply("error", error instanceof Error ? error.message : error ));
     };
 
     const sendInvoke = <T>(
@@ -329,14 +327,13 @@ export function createAppBridge(): AppBridgeDetails {
         context: AppBridgeInvokeContext,
         args: unknown[]
     ): Promise<T> => {
-        console.log("Sending Invoke", path, context, args);
-
         if (!hooked || hookedInvoke == null) {
             hooked = false;
             hookedEmit = undefined;
             hookedInvoke = undefined;
             return Promise.reject(new Error("appBridge isn't hooked"));
         }
+
         let invokeFnc: null | AppBridgeInvoke = hookedInvoke;
         return new Promise<T>((resolve, reject) => {
             if (invokeFnc == null || invokeFnc !== hookedInvoke) {
@@ -344,6 +341,7 @@ export function createAppBridge(): AppBridgeDetails {
                 reject("appbridge was unhooked");
                 return;
             }
+
             let pending = true;
             const doEnd = () => {
                 pending = false;
@@ -352,25 +350,21 @@ export function createAppBridge(): AppBridgeDetails {
             };
             pendingInvokes.push(doEnd);
 
-            const reply = (
-                status: AppBridgeReplyStatus,
-                result: unknown
-            ): void => {
-                const idx = pendingInvokes.findIndex(
-                    (ender: () => void) => ender === doEnd
-                );
+            const reply = (status: AppBridgeReplyStatus, result: unknown): void => {
+                const idx = pendingInvokes.findIndex((ender: () => void) => ender === doEnd);
                 if (idx > -1) {
                     pendingInvokes.splice(idx, 1);
                 }
+
                 if (!pending) {
                     pending = false;
                     invokeFnc = null;
+
                 } else if (status === "ok") {
                     resolve(<T>result);
+
                 } else {
-                    reject(
-                        result instanceof Error ? result.message : <T>result
-                    );
+                    reject(result instanceof Error ? result.message : <T>result);
                 }
             };
 
@@ -378,9 +372,14 @@ export function createAppBridge(): AppBridgeDetails {
         });
     };
 
-    const propBase = { writable: false, configurable: false, enumerable: true };
-    const appBridge: AppBridge = Object.freeze(
-        Object.create(null, {
+    const propBase = {
+        writable: false,
+        configurable: false,
+        enumerable: true
+    };
+    const appBridge: AppBridge = Object.freeze(Object.create(
+        null,
+        {
             on: {
                 ...propBase,
                 value: addEventListener
@@ -393,51 +392,41 @@ export function createAppBridge(): AppBridgeDetails {
             },
             off: {
                 ...propBase,
-                value: (
-                    name: string,
-                    handler: AppBridgeEventHandler,
-                    once = false
-                ): void => {
+                value: (name: string, handler: AppBridgeEventHandler, once = false): void => {
                     name = toStr(name, "name");
                     if (typeof handler !== "function") {
                         throw new Error("'handler' must be a function");
                     }
-                    if (
-                        once != null &&
-                        typeof once != "boolean" &&
-                        !(<unknown>once instanceof Boolean)
-                    ) {
-                        throw new Error(
-                            "'once' must be boolean when specified"
-                        );
+
+                    if (once != null && typeof once != "boolean" && !(<unknown>once instanceof Boolean)) {
+                        throw new Error("'once' must be boolean when specified");
                     }
                     once = once == true;
 
-                    if (
-                        !has(eventListeners, name) ||
-                        eventListeners[name] == null
-                    ) {
-                        return;
-                    }
-                    const listeners = eventListeners[name];
-                    if (listeners.length === 0) {
-                        delete eventListeners[name];
+                    if (!has(eventListeners, name) || eventListeners[ name ] == null) {
                         return;
                     }
 
-                    for (
-                        let idx = 0, len = listeners.length;
-                        idx < len;
-                        idx += 1
-                    ) {
-                        const { handler: lHandler, once: lOnce } =
-                            listeners[idx];
+                    const listeners = eventListeners[ name ];
+                    if (listeners.length === 0) {
+                        delete eventListeners[ name ];
+                        return;
+                    }
+
+                    for (let idx = 0, len = listeners.length; idx < len; idx += 1) {
+                        const {
+                            handler: lHandler,
+                            once: lOnce
+                        } = listeners[ idx ];
+
                         if (handler === lHandler && once === lOnce) {
                             if (listeners.length === 1) {
-                                delete eventListeners[name];
+                                delete eventListeners[ name ];
+
                             } else {
-                                listeners.splice(idx, 1);
+                                listeners.splice( idx, 1 );
                             }
+
                             break;
                         }
                     }
@@ -450,45 +439,43 @@ export function createAppBridge(): AppBridgeDetails {
                         eventListeners = {};
                         return;
                     }
+
                     name = toStr(name, "name");
-                    if (!has(eventListeners, name)) {
+                    if (!has( eventListeners, name )) {
                         return;
                     }
-                    delete eventListeners[name];
+
+                    delete eventListeners[ name ];
                 }
             },
             emit: {
                 ...propBase,
-                value: (name: string, data?: unknown): void => {
+                value: ( name: string, data?: unknown ): void => {
                     if (hooked == false || hookedEmit == null) {
                         hooked = false;
                         hookedEmit = undefined;
                         hookedInvoke = undefined;
-                        throw new Error("appbridge isn't hooked");
+                        throw new Error( "appbridge isn't hooked" );
                     }
-                    name = toStr(name, "name");
-                    hookedEmit(name, data);
+
+                    hookedEmit(toStr(name, "name"), data);
                 }
             },
             exists: {
                 ...propBase,
-                value: <T>(path: string): Promise<T> =>
-                    sendInvoke(path, "exists", [])
+                value: <T>(path: string): Promise<T> => sendInvoke(path, "exists", [])
             },
             get: {
                 ...propBase,
-                value: <T>(path: string): Promise<T> =>
-                    sendInvoke(path, "get", [])
+                value: <T>(path: string): Promise<T> => sendInvoke(path, "get", [])
             },
             set: {
                 ...propBase,
-                value: <T>(path: string, value?: unknown): Promise<T> =>
-                    sendInvoke(path, "set", [value])
+                value: <T>(path: string, value?: unknown): Promise<T> => sendInvoke(path, "set", [ value ])
             },
             invoke: {
                 ...propBase,
-                value: <T>(path: string, ...args: unknown[]): Promise<T> =>
-                    sendInvoke(path, "invoke", args)
+                value: <T>(path: string, ...args: unknown[]): Promise<T> => sendInvoke(path, "invoke", args)
             },
             register: {
                 ...propBase,
@@ -496,68 +483,75 @@ export function createAppBridge(): AppBridgeDetails {
                     if (definition == null) {
                         throw new Error("invalid definition");
                     }
-                    const path = toStr(definition.path, "path"),
-                        { type, value, get, set } = definition,
+
+                    const path = toStr( definition.path, "path" ),
+                        {
+                            type,
+                            value,
+                            get,
+                            set
+                        } = definition,
                         strType = toStr(type, "type");
 
-                    if (has(properties, path) && properties[path] != null) {
+                    if (has(properties, path) && properties[ path ] != null) {
                         throw new Error(`'${path}' already registered`);
+
                     } else if (strType === "function") {
                         if (typeof value !== "function") {
-                            throw new Error(
-                                "'value' must be a function when type is 'function'"
-                            );
+                            throw new Error("'value' must be a function when type is 'function'");
                         }
-                        properties[path] = {
+
+                        properties[ path ] = {
                             type: "function",
                             get: () => value
                         };
+
                     } else if (strType !== "property") {
-                        throw new Error(
-                            `'${strType}' must either be 'property' or 'function'`
-                        );
+                        throw new Error(`'${strType}' must either be 'property' or 'function'`);
+
                     } else if (set != null) {
                         if (typeof set !== "function") {
-                            throw new Error(
-                                "'set' must be a function when specified"
-                            );
+                            throw new Error("'set' must be a function when specified");
                         }
+
                         if (get == null) {
-                            throw new Error(
-                                "'get' must be specified with 'set' is specified"
-                            );
+                            throw new Error("'get' must be specified with 'set' is specified");
                         }
+
                         if (typeof get !== "function") {
-                            throw new Error(
-                                "'get' must be a function when specified"
-                            );
+                            throw new Error("'get' must be a function when specified");
                         }
+
                         if (value !== undefined) {
                             throw new Error("cannot specify 'value' and 'get'");
                         }
-                        properties[path] = {
+
+                        properties[ path ] = {
                             type: "property",
                             get,
                             set
                         };
+
                     } else if (get != null) {
                         if (typeof get !== "function") {
-                            throw new Error(
-                                "'get' must be a function when specified"
-                            );
+                            throw new Error("'get' must be a function when specified");
                         }
+
                         if (value !== undefined) {
                             throw new Error("cannot specify 'value' and 'get'");
                         }
-                        properties[path] = {
+
+                        properties[ path ] = {
                             type: "property",
                             get
                         };
+
                     } else if (value !== undefined) {
-                        properties[path] = {
+                        properties[ path ] = {
                             type: "property",
                             get: () => value
                         };
+
                     } else {
                         throw new Error("invalid definition");
                     }
@@ -569,11 +563,16 @@ export function createAppBridge(): AppBridgeDetails {
                     if (hooked) {
                         throw new Error("appbridge is currently hooked");
                     }
+
                     hooked = true;
                     hookedEmit = emit;
                     hookedInvoke = invoke;
 
-                    return { appBridge, emit: selfEmit, invoke: selfInvoke };
+                    return {
+                        appBridge,
+                        emit: selfEmit,
+                        invoke: selfInvoke
+                    };
                 }
             },
             unhook: {
@@ -586,8 +585,12 @@ export function createAppBridge(): AppBridgeDetails {
                     hooked = false;
                 }
             }
-        })
-    );
+        }
+    ));
 
-    return { appBridge, emit: selfEmit, invoke: selfInvoke };
+    return {
+        appBridge,
+        emit: selfEmit,
+        invoke: selfInvoke
+    };
 }

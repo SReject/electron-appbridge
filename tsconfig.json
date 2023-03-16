@@ -9,6 +9,7 @@
         "forceConsistentCasingInFileNames": true,
         "inlineSources": false,
         "isolatedModules": true,
+        "module": "es2020",
         "moduleResolution": "node",
         "noUnusedParameters": false,
         "preserveWatchOutput": true,

@@ -1,4 +1,4 @@
-import { type initializeAppBridge } from "./preload";
+import {type initializeAppBridge} from "./preload";
 
 declare global {
     interface Window {

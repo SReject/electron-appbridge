@@ -1,4 +1,6 @@
-import { contextBridge, ipcRenderer } from "electron";
+import {
+    contextBridge, ipcRenderer
+} from "electron";
 
 import type {
     AppBridgeEmit,
@@ -15,10 +17,8 @@ type AppBridgeInvokeResponse = {
 };
 
 let initialized = false;
-const initAppBridge = (
-    renderEmit: AppBridgeEmit,
-    renderInvoke: AppBridgeInvoke
-): { emit: AppBridgeEmit; invoke: AppBridgeInvoke } => {
+const initAppBridge = (renderEmit: AppBridgeEmit, renderInvoke: AppBridgeInvoke): { emit: AppBridgeEmit; invoke: AppBridgeInvoke } => {
+
     if (initialized) {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-expect-error
@@ -29,31 +29,53 @@ const initAppBridge = (
 
     ipcRenderer.on(
         "AppBridge:Emit",
-        (ignore: Electron.IpcRendererEvent, { name, data }) => {
-            renderEmit(name, data);
-        }
+        (
+            ignore: Electron.IpcRendererEvent,
+            {
+                name,
+                data
+            }
+        ) => renderEmit(name, data)
     );
 
     ipcRenderer.on(
         "AppBridge:Invoke",
-        (ignore: Electron.IpcRendererEvent, { id, path, context, args }) => {
-            const reply: AppBridgeReply = (
-                status: "error" | "ok",
-                result: unknown
-            ) => {
-                ipcRenderer.send("AppBridge:Invoke:Reply", {
-                    id,
-                    status,
-                    result
-                });
-            };
-            renderInvoke(reply, path, context, args);
+        (
+            ignore: Electron.IpcRendererEvent,
+            {
+                id,
+                path,
+                context,
+                args
+            }
+        ) => {
+            renderInvoke(
+                (status: AppBridgeReplyStatus, result: unknown) => {
+                    ipcRenderer.send(
+                        "AppBridge:Invoke:Reply",
+                        {
+                            id,
+                            status,
+                            result
+                        }
+                    );
+                },
+                path,
+                context,
+                args
+            );
         }
     );
 
     return {
         emit: (name: string, data?: unknown) => {
-            ipcRenderer.send("AppBridge:Emit", { name, data });
+            ipcRenderer.send(
+                "AppBridge:Emit",
+                {
+                    name,
+                    data
+                }
+            );
         },
         invoke: <AppBridgeInvoke>((
             reply: AppBridgeReply,
@@ -67,31 +89,37 @@ const initAppBridge = (
                 id += String.fromCharCode(charCode);
             }
 
-            const handler = (
-                event: Electron.IpcRendererEvent,
-                data: AppBridgeInvokeResponse
-            ) => {
+            const handler = (ignore: Electron.IpcRendererEvent, data: AppBridgeInvokeResponse) => {
                 if (data.id !== id) {
                     return;
                 }
+
                 ipcRenderer.removeListener("AppBridge:Invoke:Reply", handler);
                 if (data.status === "ok") {
                     reply("ok", data.result);
+
                 } else {
                     reply("error", data.result);
                 }
             };
+
             ipcRenderer.on("AppBridge:Invoke:Reply", handler);
-            ipcRenderer.send("AppBridge:Invoke", {
-                id,
-                path,
-                context,
-                args
-            });
+            ipcRenderer.send(
+                "AppBridge:Invoke",
+                {
+                    id,
+                    path,
+                    context,
+                    args
+                }
+            );
         })
     };
 };
 
 export type initializeAppBridge = typeof initAppBridge;
 
-contextBridge.exposeInMainWorld("initializeRendererAppBridge", initAppBridge);
+contextBridge.exposeInMainWorld(
+    "initializeRendererAppBridge",
+    initAppBridge
+);

@@ -1,4 +1,4 @@
 # electron-appbridge Documentation
 
-[Contribute]('./contributing.md)
-[Usage]('./usage.md)
+[Contribute](./contributing.md)
+[Usage](./usage.md)

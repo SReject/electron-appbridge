@@ -1,6 +1,6 @@
 # electron-appbridge
 
-A wrapper to facilitate easy communication between the various Eectronjs app's processes
+A wrapper to facilitate easy communication between the an [Electronjs](https://www.electronjs.org/) app's [processes](https://www.electronjs.org/docs/latest/tutorial/process-model)
 
 ## Work in Progress
 
